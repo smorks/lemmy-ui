@@ -114,8 +114,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       lemmy-js-client:
-        specifier: 0.19.12-name-and-message.1
-        version: 0.19.12-name-and-message.1
+        specifier: file:../lemmy-js-client/dist
+        version: dist@file:../lemmy-js-client/dist
       lodash.isequal:
         specifier: ^4.5.0
         version: 4.5.0
@@ -2020,6 +2020,9 @@ packages:
     resolution: {integrity: sha512-WkrWp9GR4KXfKGYzOLmTuGVi1UWFfws377n9cc55/tb6DuqyF6pcQ5AbiHEshaDpY9v6oaSr2XCDidGmMwdzIA==}
     engines: {node: '>=8'}
 
+  dist@file:../lemmy-js-client/dist:
+    resolution: {directory: ../lemmy-js-client/dist, type: directory}
+
   dns-packet@5.6.1:
     resolution: {integrity: sha512-l4gcSouhcgIKRvyy99RNVOgxXiicE+2jZoNmaNmZ6JXiGajBOJAesk1OBlJuM5k2c+eudGdLxDqXuPCKIj6kpw==}
     engines: {node: '>=6'}
@@ -3048,9 +3051,6 @@ packages:
 
   leac@0.6.0:
     resolution: {integrity: sha512-y+SqErxb8h7nE/fiEX07jsbuhrpO9lL8eca7/Y1nuWV2moNlXhyd59iDGcRf6moVyDMbmTNzL40SUyrFU/yDpg==}
-
-  lemmy-js-client@0.19.12-name-and-message.1:
-    resolution: {integrity: sha512-ghX9wY/ERjyKnVfUhDogTw5WC6Sa6bPphBQcrM3xJIbxozo35ENvUaDx/FGZZJ40Wb3HgqXh73d6wTtYdpbXOw==}
 
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
@@ -6667,6 +6667,8 @@ snapshots:
     dependencies:
       path-type: 4.0.0
 
+  dist@file:../lemmy-js-client/dist: {}
+
   dns-packet@5.6.1:
     dependencies:
       '@leichtgewicht/ip-codec': 2.0.5
@@ -7811,8 +7813,6 @@ snapshots:
       shell-quote: 1.8.1
 
   leac@0.6.0: {}
-
-  lemmy-js-client@0.19.12-name-and-message.1: {}
 
   leven@3.1.0: {}
 
