@@ -167,7 +167,10 @@ export class PrivateMessage extends Component<
                       <button
                         type="button"
                         className="btn btn-link btn-animate text-muted"
-                        onClick={linkEvent(this, this.handleDeleteClick)}
+                        onClick={linkEvent(
+                          this,
+                          this.handleDeleteByRecipientClick,
+                        )}
                         data-tippy-content={
                           !message_view.private_message.deleted
                             ? I18NextService.i18n.t("delete")

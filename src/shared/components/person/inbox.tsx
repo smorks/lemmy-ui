@@ -40,6 +40,7 @@ import {
   CreatePrivateMessageReport,
   DeleteComment,
   DeletePrivateMessage,
+  DeletePrivateMessageForRecipient,
   DistinguishComment,
   EditComment,
   EditPrivateMessage,
@@ -191,6 +192,8 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     this.handleBanPerson = this.handleBanPerson.bind(this);
 
     this.handleDeleteMessage = this.handleDeleteMessage.bind(this);
+    this.handleDeleteMessageByRecipient =
+      this.handleDeleteMessageByRecipient.bind(this);
     this.handleMarkMessageAsRead = this.handleMarkMessageAsRead.bind(this);
     this.handleMessageReport = this.handleMessageReport.bind(this);
     this.handleCreateMessage = this.handleCreateMessage.bind(this);
@@ -990,8 +993,8 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
     this.findAndUpdateMessage(res);
   }
 
-  async handleDeleteMessageByRecipient(form: DeletePrivateMessage) {
-    const res = await HttpService.client.deletePrivateMessage(form);
+  async handleDeleteMessageByRecipient(form: DeletePrivateMessageForRecipient) {
+    const res = await HttpService.client.deletePrivateMessageForRecipient(form);
     this.findAndUpdateMessage(res);
   }
 
