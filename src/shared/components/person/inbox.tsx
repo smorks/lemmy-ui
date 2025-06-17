@@ -580,6 +580,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
             key={i.id}
             private_message_view={i.view as PrivateMessageView}
             onDelete={this.handleDeleteMessage}
+            onDeleteByRecipient={this.handleDeleteMessageByRecipient}
             onMarkRead={this.handleMarkMessageAsRead}
             onReport={this.handleMessageReport}
             onCreate={this.handleCreateMessage}
@@ -709,6 +710,7 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
                 key={pmv.private_message.id}
                 private_message_view={pmv}
                 onDelete={this.handleDeleteMessage}
+                onDeleteByRecipient={this.handleDeleteMessageByRecipient}
                 onMarkRead={this.handleMarkMessageAsRead}
                 onReport={this.handleMessageReport}
                 onCreate={this.handleCreateMessage}
@@ -984,6 +986,11 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
   }
 
   async handleDeleteMessage(form: DeletePrivateMessage) {
+    const res = await HttpService.client.deletePrivateMessage(form);
+    this.findAndUpdateMessage(res);
+  }
+
+  async handleDeleteMessageByRecipient(form: DeletePrivateMessage) {
     const res = await HttpService.client.deletePrivateMessage(form);
     this.findAndUpdateMessage(res);
   }

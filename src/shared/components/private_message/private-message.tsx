@@ -30,6 +30,7 @@ interface PrivateMessageState {
 interface PrivateMessageProps {
   private_message_view: PrivateMessageView;
   onDelete(form: DeletePrivateMessage): void;
+  onDeleteByRecipient(form: DeletePrivateMessage): void;
   onMarkRead(form: MarkPrivateMessageAsRead): void;
   onReport(form: CreatePrivateMessageReport): void;
   onCreate(form: CreatePrivateMessage): Promise<boolean>;
@@ -166,6 +167,35 @@ export class PrivateMessage extends Component<
                       <button
                         type="button"
                         className="btn btn-link btn-animate text-muted"
+                        onClick={linkEvent(this, this.handleDeleteClick)}
+                        data-tippy-content={
+                          !message_view.private_message.deleted
+                            ? I18NextService.i18n.t("delete")
+                            : I18NextService.i18n.t("restore")
+                        }
+                        aria-label={
+                          !message_view.private_message.deleted
+                            ? I18NextService.i18n.t("delete")
+                            : I18NextService.i18n.t("restore")
+                        }
+                      >
+                        {this.state.deleteLoading ? (
+                          <Spinner />
+                        ) : (
+                          <Icon
+                            icon="trash"
+                            classes={`icon-inline ${
+                              message_view.private_message.deleted &&
+                              "text-danger"
+                            }`}
+                          />
+                        )}
+                      </button>
+                    </li>
+                    <li className="list-inline-item">
+                      <button
+                        type="button"
+                        className="btn btn-link btn-animate text-muted"
                         onClick={linkEvent(this, this.handleReplyClick)}
                         data-tippy-content={I18NextService.i18n.t("reply")}
                         aria-label={I18NextService.i18n.t("reply")}
@@ -295,6 +325,14 @@ export class PrivateMessage extends Component<
   handleDeleteClick(i: PrivateMessage) {
     i.setState({ deleteLoading: true });
     i.props.onDelete({
+      private_message_id: i.props.private_message_view.private_message.id,
+      deleted: !i.props.private_message_view.private_message.deleted,
+    });
+  }
+
+  handleDeleteByRecipientClick(i: PrivateMessage) {
+    i.setState({ deleteLoading: true });
+    i.props.onDeleteByRecipient({
       private_message_id: i.props.private_message_view.private_message.id,
       deleted: !i.props.private_message_view.private_message.deleted,
     });
