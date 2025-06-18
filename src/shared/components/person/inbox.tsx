@@ -995,7 +995,9 @@ export class Inbox extends Component<InboxRouteProps, InboxState> {
 
   async handleDeleteMessageByRecipient(form: DeletePrivateMessageForRecipient) {
     const res = await HttpService.client.deletePrivateMessageForRecipient(form);
-    this.findAndUpdateMessage(res);
+    //this.findAndUpdateMessage(res);
+    await this.refetch();
+    return res.state === "success";
   }
 
   async handleEditMessage(form: EditPrivateMessage): Promise<boolean> {

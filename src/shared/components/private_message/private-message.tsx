@@ -30,7 +30,7 @@ interface PrivateMessageState {
 interface PrivateMessageProps {
   private_message_view: PrivateMessageView;
   onDelete(form: DeletePrivateMessage): void;
-  onDeleteByRecipient(form: DeletePrivateMessage): void;
+  onDeleteByRecipient(form: DeletePrivateMessage): Promise<boolean>;
   onMarkRead(form: MarkPrivateMessageAsRead): void;
   onReport(form: CreatePrivateMessageReport): void;
   onCreate(form: CreatePrivateMessage): Promise<boolean>;
@@ -59,6 +59,8 @@ export class PrivateMessage extends Component<
     this.hideReportDialog = this.hideReportDialog.bind(this);
     this.handleCreate = this.handleCreate.bind(this);
     this.handleEdit = this.handleEdit.bind(this);
+    this.handleDeleteByRecipientClick =
+      this.handleDeleteByRecipientClick.bind(this);
   }
 
   get mine(): boolean {
@@ -333,12 +335,14 @@ export class PrivateMessage extends Component<
     });
   }
 
-  handleDeleteByRecipientClick(i: PrivateMessage) {
+  async handleDeleteByRecipientClick(i: PrivateMessage): Promise<boolean> {
     i.setState({ deleteLoading: true });
-    i.props.onDeleteByRecipient({
+    const success = await i.props.onDeleteByRecipient({
       private_message_id: i.props.private_message_view.private_message.id,
       deleted: !i.props.private_message_view.private_message.deleted,
     });
+    i.setState({ deleteLoading: false });
+    return success;
   }
 
   handleReplyCancel() {
