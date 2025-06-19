@@ -16,6 +16,7 @@ import { PersonListing } from "../person/person-listing";
 import { PrivateMessageForm } from "./private-message-form";
 import ModActionFormModal from "../common/modal/mod-action-form-modal";
 import { tippyMixin } from "../mixins/tippy-mixin";
+import ConfirmationModal from "../common/modal/confirmation-modal";
 
 interface PrivateMessageState {
   showReply: boolean;
@@ -25,6 +26,7 @@ interface PrivateMessageState {
   showReportDialog: boolean;
   deleteLoading: boolean;
   readLoading: boolean;
+  showConfirmDelete: boolean;
 }
 
 interface PrivateMessageProps {
@@ -50,6 +52,7 @@ export class PrivateMessage extends Component<
     showReportDialog: false,
     deleteLoading: false,
     readLoading: false,
+    showConfirmDelete: false,
   };
 
   constructor(props: any, context: any) {
@@ -61,6 +64,8 @@ export class PrivateMessage extends Component<
     this.handleEdit = this.handleEdit.bind(this);
     this.handleDeleteByRecipientClick =
       this.handleDeleteByRecipientClick.bind(this);
+    this.handleToggleShowConfirmDelete =
+      this.handleToggleShowConfirmDelete.bind(this);
   }
 
   get mine(): boolean {
@@ -171,7 +176,7 @@ export class PrivateMessage extends Component<
                         className="btn btn-link btn-animate text-muted"
                         onClick={linkEvent(
                           this,
-                          this.handleDeleteByRecipientClick,
+                          this.handleToggleShowConfirmDelete,
                         )}
                         data-tippy-content={
                           !message_view.private_message.deleted
@@ -280,6 +285,13 @@ export class PrivateMessage extends Component<
           onCancel={this.hideReportDialog}
           show={this.state.showReportDialog}
         />
+        <ConfirmationModal
+          message="Are you sure you want to delete this message?"
+          loadingMessage="Deleting..."
+          onNo={this.handleToggleShowConfirmDelete}
+          onYes={this.handleDeleteByRecipientClick}
+          show={this.state.showConfirmDelete}
+        />
         {this.state.showReply && (
           <div className="row">
             <div className="col-sm-6">
@@ -335,14 +347,17 @@ export class PrivateMessage extends Component<
     });
   }
 
-  async handleDeleteByRecipientClick(i: PrivateMessage): Promise<boolean> {
-    i.setState({ deleteLoading: true });
-    const success = await i.props.onDeleteByRecipient({
-      private_message_id: i.props.private_message_view.private_message.id,
-      deleted: !i.props.private_message_view.private_message.deleted,
+  handleToggleShowConfirmDelete() {
+    this.setState(prev => ({ showConfirmDelete: !prev.showConfirmDelete }));
+  }
+
+  async handleDeleteByRecipientClick(): Promise<void> {
+    this.setState({ deleteLoading: true, showConfirmDelete: false });
+    await this.props.onDeleteByRecipient({
+      private_message_id: this.props.private_message_view.private_message.id,
+      deleted: !this.props.private_message_view.private_message.deleted,
     });
-    i.setState({ deleteLoading: false });
-    return success;
+    this.setState({ deleteLoading: false });
   }
 
   handleReplyCancel() {
