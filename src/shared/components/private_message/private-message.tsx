@@ -3,6 +3,7 @@ import {
   CreatePrivateMessage,
   CreatePrivateMessageReport,
   DeletePrivateMessage,
+  DeletePrivateMessageForRecipient,
   EditPrivateMessage,
   MyUserInfo,
   Person,
@@ -19,6 +20,7 @@ import ModActionFormModal from "../common/modal/mod-action-form-modal";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { mark_as_read_i18n } from "@utils/app";
 import ActionButton from "@components/common/content-actions/action-button";
+import ConfirmationModal from "../common/modal/confirmation-modal";
 
 interface PrivateMessageProps {
   private_message_view: PrivateMessageView;
@@ -32,6 +34,7 @@ interface PrivateMessageProps {
   onCreate: (form: CreatePrivateMessage) => void;
   onEdit: (form: EditPrivateMessage) => void;
   onMarkRead: (privateMessageId: PrivateMessageId, read: boolean) => void;
+  onDeleteByRecipient: (form: DeletePrivateMessageForRecipient) => void;
 }
 
 interface PrivateMessageState {
@@ -39,6 +42,7 @@ interface PrivateMessageState {
   showEdit: boolean;
   viewSource: boolean;
   showReportDialog: boolean;
+  showConfirmDelete: boolean;
 }
 
 @tippyMixin
@@ -51,12 +55,20 @@ export class PrivateMessage extends Component<
     showEdit: false,
     viewSource: false,
     showReportDialog: false,
+    showConfirmDelete: false,
   };
 
   get mine(): boolean {
     return (
       this.props.myUserInfo?.local_user_view.person.id ===
       this.props.private_message_view.creator.id
+    );
+  }
+
+  get is_recipient(): boolean {
+    return (
+      this.props.myUserInfo?.local_user_view.person.id ===
+      this.props.private_message_view.recipient.id
     );
   }
 
@@ -152,6 +164,35 @@ export class PrivateMessage extends Component<
                         <Icon icon="reply1" classes="icon-inline" />
                       </button>
                     </div>
+                    <div className="col">
+                      <button
+                        type="button"
+                        className="btn btn-sm border-light-subtle btn-animate text-muted"
+                        onClick={() => handleToggleShowConfirmDelete(this)}
+                        data-tippy-content={I18NextService.i18n.t(
+                          message_view.private_message.deleted_by_recipient
+                            ? "restore"
+                            : "delete",
+                        )}
+                        aria-label={I18NextService.i18n.t(
+                          message_view.private_message.deleted_by_recipient
+                            ? "restore"
+                            : "delete",
+                        )}
+                      >
+                        {this.props.deleteLoading ? (
+                          <Spinner />
+                        ) : (
+                          <Icon
+                            icon="trash"
+                            classes={`icon-inline ${
+                              message_view.private_message
+                                .deleted_by_recipient && "text-danger"
+                            }`}
+                          />
+                        )}
+                      </button>
+                    </div>
                   </>
                 )}
                 {this.mine && (
@@ -225,6 +266,13 @@ export class PrivateMessage extends Component<
           show={this.state.showReportDialog}
           loading={false}
         />
+        <ConfirmationModal
+          message={`Are you sure you want to ${this.props.private_message_view.private_message.deleted_by_recipient ? "restore" : "delete"} this message?`}
+          loadingMessage={`${this.props.private_message_view.private_message.deleted_by_recipient ? "Restoring" : "Deleting"}...`}
+          onNo={() => handleToggleShowConfirmDelete(this)}
+          onYes={() => handleDeleteByRecipientClick(this)}
+          show={this.state.showConfirmDelete}
+        />
         {this.state.showReply && (
           <div className="row">
             <div className="col-sm-6">
@@ -257,7 +305,8 @@ export class PrivateMessage extends Component<
 
   get messageUnlessRemoved(): string {
     const message = this.props.private_message_view.private_message;
-    return message.deleted
+    return message.deleted ||
+      (message.deleted_by_recipient && this.is_recipient)
       ? `*${I18NextService.i18n.t("deleted")}*`
       : message.content;
   }
@@ -320,4 +369,16 @@ function handleReportSubmit(i: PrivateMessage, reason: string) {
   });
 
   handleHideReportDialog(i);
+}
+
+function handleToggleShowConfirmDelete(i: PrivateMessage) {
+  i.setState(prev => ({ showConfirmDelete: !prev.showConfirmDelete }));
+}
+
+function handleDeleteByRecipientClick(i: PrivateMessage) {
+  i.setState({ showConfirmDelete: false });
+  i.props.onDeleteByRecipient({
+    private_message_id: i.props.private_message_view.private_message.id,
+    deleted: !i.props.private_message_view.private_message.deleted_by_recipient,
+  });
 }

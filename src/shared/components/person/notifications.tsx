@@ -53,6 +53,7 @@ import {
   MyUserInfo,
   CommentId,
   PostId,
+  DeletePrivateMessageForRecipient,
 } from "lemmy-js-client";
 import { fetchLimit, relTags } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
@@ -344,6 +345,9 @@ export class Notifications extends Component<
             read={item.notification.read}
             myUserInfo={myUserInfo}
             onDelete={form => handleDeleteMessage(this, form)}
+            onDeleteByRecipient={form =>
+              handleDeleteMessageByRecipient(this, form)
+            }
             onReport={form => handleMessageReport(form)}
             onCreate={form => handleCreateMessage(this, form)}
             onEdit={form => handleEditMessage(this, form)}
@@ -874,6 +878,21 @@ async function handleDeleteMessage(
     },
   });
   const res = await HttpService.client.deletePrivateMessage(form);
+  i.setState({ privateMessageDeleteRes: { id: form.private_message_id, res } });
+  i.findAndUpdateMessage(res);
+}
+
+async function handleDeleteMessageByRecipient(
+  i: Notifications,
+  form: DeletePrivateMessageForRecipient,
+) {
+  i.setState({
+    privateMessageDeleteRes: {
+      id: form.private_message_id,
+      res: LOADING_REQUEST,
+    },
+  });
+  const res = await HttpService.client.deletePrivateMessageForRecipient(form);
   i.setState({ privateMessageDeleteRes: { id: form.private_message_id, res } });
   i.findAndUpdateMessage(res);
 }
